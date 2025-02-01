@@ -14,6 +14,9 @@ function getRandomDigits() {
   return Math.random().toFixed(16).slice(2);
 }
 
+const pattern =
+  /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@,.\w_]*)#?(?:[,.!/\\\w]*))?)$/;
+
 export const TextField: React.FC<Props> = ({
   name,
   value,
@@ -28,6 +31,7 @@ export const TextField: React.FC<Props> = ({
   // To show errors only if the field was touched (onBlur)
   const [touched, setTouched] = useState(false);
   const hasError = touched && required && !value;
+  const [validMessage, setValidMessage] = useState('');
 
   return (
     <div className="field">
@@ -46,11 +50,23 @@ export const TextField: React.FC<Props> = ({
           placeholder={placeholder}
           value={value}
           onChange={event => onChange(event.target.value)}
-          onBlur={() => setTouched(true)}
+          onBlur={() => {
+            setTouched(true);
+            if (
+              (name === 'imgUrl' || name === 'imdbUrl') &&
+              !pattern.test(value)
+            ) {
+              console.log(pattern.test(value));
+              setValidMessage('Not valid URL');
+            } else {
+              setValidMessage('');
+            }
+          }}
         />
       </div>
 
       {hasError && <p className="help is-danger">{`${label} is required`}</p>}
+      {validMessage && <p className="help is-danger">{`Not valid URL`}</p>}
     </div>
   );
 };
